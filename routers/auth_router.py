@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends, Response
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from auth import auth_utils
+from auth import auth_utils, token_utils
 from conf.constants import default_token_expire_minutes
 from conf.errors import KnownErrors
 from crud import crud_user
@@ -42,3 +42,16 @@ def login(request: Request,
                                                          tokens_db)
     resp = Response(headers={"Authorization": f"Bearer {access_token}"}, content=access_token)
     return resp
+
+
+@router.post('/logout', tags=['Authentication'], name='logout')
+def logout(request: Request,
+           tokens_db=Depends(get_redis_db)):
+    access_token = auth_utils.is_authenticated(request, tokens_db)  # Return None if the user is not authenticated
+    if access_token is None:  # request is not authorized
+        return KnownErrors.ERROR_BAD_REQUEST
+    b = token_utils.delete_token(token=access_token, tokens_db=tokens_db)
+    if b:
+        return {"message": "OK"}
+    else:
+        return {"message": "NOK"}

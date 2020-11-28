@@ -1,11 +1,9 @@
-from enum import Enum
-
 from fastapi import HTTPException
 
 from conf import constants
 
 
-class KnownErrors(Enum):
+class KnownErrors:
     ERROR_USER_EXISTS = HTTPException(status_code=constants.error_user_exists_code,
                                       detail=constants.error_user_exists)
     ERROR_USER_NOT_EXISTS = HTTPException(status_code=constants.error_user_not_exists_code,

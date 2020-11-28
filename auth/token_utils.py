@@ -54,9 +54,22 @@ def token_exists(username: str, tokens_db: Redis):
 
 def validate_token(username: str, token: str, tokens_db: Redis):
     """check if the user.token == token"""
-    return RedisCRUD(tokens_db).get(username) == token
+    token_in_db = RedisCRUD(tokens_db).get(username)
+    if token_in_db is None:
+        return False
+    return token_in_db.decode('utf-8') == token
 
 
-def delete_user_token(user: User, tokens_db: Redis):
+def delete_user_token(username: str, tokens_db: Redis):
     """delete the user token in the database"""
-    return RedisCRUD(tokens_db).delete(user.username)
+    return RedisCRUD(tokens_db).delete(username)
+
+
+def delete_token(token: str, tokens_db: Redis):
+    data = jwt_token_decode(token)
+    if 'username' in data:
+        username = data.get('username')
+        delete_user_token(username, tokens_db)
+        return True
+    else:
+        return False
