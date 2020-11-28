@@ -1,7 +1,7 @@
 from manager import Manager
 from uvicorn import run
 
-from conf import FAST_API_PORT
+from conf.settings import FAST_API_PORT
 
 # https://pypi.org/project/manage.py
 manager = Manager()

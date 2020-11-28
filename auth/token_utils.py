@@ -4,7 +4,8 @@ from typing import Optional
 from jose import jwt
 from redis import Redis
 
-from conf import JWT_SETTINGS, default_token_expire_minutes
+from conf.constants import default_token_expire_minutes
+from conf.settings import JWT_SETTINGS
 from db.rediscrud import RedisCRUD
 from schemas import User
 

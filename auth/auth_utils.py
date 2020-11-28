@@ -6,7 +6,8 @@ from redis import Redis
 from sqlalchemy.orm import Session
 
 from auth.token_utils import _SEC_KEY, _ALGO
-from conf import KnownErrors, token_header_key as TOKEN_HEADER_KEY
+from conf.constants import token_header_key as TOKEN_HEADER_KEY
+from conf.errors import KnownErrors
 from crud import UserCRUD
 from db import utils
 from schemas import UserCreate

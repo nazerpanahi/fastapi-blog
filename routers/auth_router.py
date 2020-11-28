@@ -3,7 +3,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from auth import auth_utils
-from conf import KnownErrors, default_token_expire_minutes
+from conf.constants import default_token_expire_minutes
+from conf.errors import KnownErrors
 from crud import crud_user
 from db.utils import get_sql_db, get_redis_db
 from schemas import UserCreate

@@ -1,4 +1,4 @@
-from conf import DB_SETTINGS, REDIS_SETTINGS
+from conf.settings import DB_SETTINGS, REDIS_SETTINGS
 from db.db_connection import SQLAlchemyDB, RedisDB
 
 

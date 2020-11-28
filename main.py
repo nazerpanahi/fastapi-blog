@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from conf import ROUTERS
+from conf.routers import ROUTERS
 from db.database import SQL_Base, SQL_engine, SE_Base, SE_engine
 
 # Make new app
