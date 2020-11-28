@@ -1,0 +1,21 @@
+#TODO
+
+- [ ] Complete models
+- [ ] Complete schemas
+- [ ] Complete crud for all models
+- [ ] Save models in the elasticsearch
+- [ ] Use pydantic.base setting instead of settings
+- [ ] Complete routers and make all endpoints
+    - [ ] User
+        - [ ] Register
+        - [ ] Login
+        - [ ] Logout
+    - [ ] Post
+        - [ ] My own Posts
+        - [ ] Create new Post
+        - [ ] Delete a Post
+        - [ ] Edit a Post
+        - [ ] Like a Post
+        - [ ] Comment a Post
+- [ ] Test all routes using pytest (in the test module)
+- [ ] Complete README.md file
