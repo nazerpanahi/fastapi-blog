@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request, Depends, Response
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from auth import auth_utils
-from conf import KnownErrors
+from conf import KnownErrors, default_token_expire_minutes
 from crud import crud_user
 from db.utils import get_sql_db, get_redis_db
 from schemas import UserCreate
@@ -25,3 +25,19 @@ def register(request: Request,
             raise KnownErrors.ERROR_USER_EXISTS
     else:
         raise KnownErrors.ERROR_BAD_REQUEST
+
+
+@router.post('/login', tags=['Authentication'], name='login')
+def login(request: Request,
+          user: UserCreate,
+          users_db: Session = Depends(get_sql_db),
+          tokens_db=Depends(get_redis_db)):
+    access_token = auth_utils.is_authenticated(request, tokens_db)  # Return None if the user is not authenticated
+    if access_token is None:  # request is not authorized
+        access_token = auth_utils.login_for_access_token(user.username,
+                                                         user.password,
+                                                         default_token_expire_minutes,
+                                                         users_db,
+                                                         tokens_db)
+    resp = Response(headers={"Authorization": f"Bearer {access_token}"}, content=access_token)
+    return resp
