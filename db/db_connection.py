@@ -1,3 +1,4 @@
+from redis import Redis, ConnectionPool
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -50,3 +51,23 @@ class SQLAlchemyDB:
         self.SessionLocal = self._make_session(engine=self.engine)
         self.Base = declarative_base()
         return self.engine, self.SessionLocal, self.Base
+
+
+class RedisDB:
+    def __init__(self, host='localhost', port=6379,
+                 db=0, password=None, connection_pool=None):
+        self.host = host
+        self.port = port
+        self.db = db
+        self.password = password
+        self.connection_pool = connection_pool
+
+        self._connection = Redis(host=host, port=port, db=db, password=password, connection_pool=connection_pool)
+
+    @property
+    def connection(self) -> Redis:
+        return self._connection
+
+    @staticmethod
+    def make_connection_pool():
+        return ConnectionPool()
