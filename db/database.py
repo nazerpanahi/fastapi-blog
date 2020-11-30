@@ -1,5 +1,5 @@
 from conf.settings import DB_SETTINGS, REDIS_SETTINGS
-from db.db_connection import SQLAlchemyDB, RedisDB
+from core.db_connection import SQLAlchemyDB, RedisDB
 
 
 class DBSettings:
@@ -44,7 +44,7 @@ class RedisSettings:
                  host_key='host',
                  port_key='port',
                  db_key='db',
-                 password_key='connect_args',
+                 password_key='password',
                  connection_pool_key='connection_pool'):
         self._host = REDIS_SETTINGS.get(host_key, 'localhost')
         self._port = REDIS_SETTINGS.get(port_key, 6379)
