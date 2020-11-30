@@ -1,6 +1,8 @@
+FAST_API_PORT = 8000
+
 DB_SETTINGS = {
     'SQL': {
-        'db_url': 'sqlite:///./database.db',
+        'db_url': 'sqlite:///./database.sqlite',
         'autocommit': False,
         'autoflush': False,
         'connect_args': {
@@ -12,6 +14,11 @@ DB_SETTINGS = {
         'autocommit': False,
         'autoflush': False,
     },
+}
+
+REDIS_SETTINGS = {
+    'host': 'localhost',
+    'port': 6379
 }
 
 JWT_SETTINGS = {

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 
-class CRUD:
+class ModelCRUD:
     def __init__(self, model, db: Session):
         if not callable(model):
             raise RuntimeError(f'The {model} is not a callable object')
