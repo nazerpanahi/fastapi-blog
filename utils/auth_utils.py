@@ -1,21 +1,20 @@
 from datetime import timedelta
 
-from fastapi import Depends, Request
+from fastapi import Request
 from jose import jwt, JWTError
 from redis import Redis
 from sqlalchemy.orm import Session
 
-from auth.token_utils import _SEC_KEY, _ALGO
 from conf.constants import token_header_key as TOKEN_HEADER_KEY
-from conf.errors import KnownErrors
+from core.errors import KnownErrors
 from crud import UserCRUD
-from db import utils
 from schemas import UserCreate
-from security import verify_password
+from utils.token_utils import _SEC_KEY, _ALGO
+from .password_utils import verify_password
 from .token_utils import register_token_for_user, get_token_string, jwt_token_decode, validate_token
 
 
-def authenticate_user(username: str, password: str, users_db: Session = Depends(utils.get_sql_db)):
+def authenticate_user(username: str, password: str, users_db: Session):
     """Get the user credentials and check if the users credentials exist in database"""
     user_db = UserCRUD(users_db=users_db).get_by_username(username=username)
     if not user_db:
@@ -32,12 +31,12 @@ def authenticate_user(username: str, password: str, users_db: Session = Depends(
     return user_db
 
 
-def get_current_user(access_token: str, users_db: Session = Depends(utils.get_sql_db)):
+def get_current_user(access_token: str, users_db: Session):
     """Return current authenticated user"""
     credentials_exception = KnownErrors.ERROR_NOT_VALID_CREDENTIALS
     try:
         payload = jwt.decode(access_token, _SEC_KEY, algorithms=[_ALGO])
-        username: str = payload.get("sub")
+        username: str = payload.get("username")
         if username is None:
             raise credentials_exception
     except JWTError:
@@ -75,14 +74,20 @@ def validate_request_token(token: str, tokens_db: Redis) -> bool:
 
 def is_authenticated(request: Request,
                      tokens_db: Redis,
-                     token_header_key: str = TOKEN_HEADER_KEY):
-    """check if the user is authenticated before or not using the request headers"""
+                     token_header_key: str = TOKEN_HEADER_KEY,
+                     error=None):
+    """check if the user is authenticated before or not using the request headers and
+    return None or raise error if the token is not sent (request is not authenticated) and
+    raise not valid credentials error if credentials that sent in the request is not valid and
+    return access token if none of the above conditions occur"""
     if is_token_sent(request, token_header_key):
         access_token = get_token_from_request(request, token_header_key)
         if not validate_request_token(access_token, tokens_db):
             raise KnownErrors.ERROR_NOT_VALID_CREDENTIALS
         return access_token
     else:
+        if error is not None:
+            raise error
         return None
 
 
@@ -97,3 +102,8 @@ def login_for_access_token(username, password, expire_delta, users_db: Session, 
     access_token = get_token_string(data, expire_delta)
     register_token_for_user(access_token, user, tokens_db)
     return access_token
+
+
+def delete_user_account(token: str, users_db: Session):
+    user = get_current_user(token, users_db)
+    return UserCRUD(users_db=users_db).delete_by_username(username=user.username)
