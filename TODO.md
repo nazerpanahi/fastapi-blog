@@ -1,21 +1,43 @@
 # TODO
 
 - [ ] Complete models
+    - [X] User
+    - [X] Post
+    - [X] UserPostLike
+    - [ ] Comment
 - [ ] Complete schemas
+    - [X] User
+    - [X] Post
+    - [ ] Comment
 - [ ] Complete crud for all models
+    - [X] User
+    - [X] Post
+    - [X] UserPostLike
+    - [ ] Comment
 - [ ] Save models in the elasticsearch
 - [ ] Use pydantic.base setting instead of settings
 - [ ] Complete routers and make all endpoints
-    - [ ] User
-        - [ ] Register
-        - [ ] Login
-        - [ ] Logout
+    - [X] User
+        - [X] Register
+        - [X] Login
+        - [X] Logout
+        - [X] Delete account
     - [ ] Post
-        - [ ] My own Posts
-        - [ ] Create new Post
-        - [ ] Delete a Post
-        - [ ] Edit a Post
-        - [ ] Like a Post
-        - [ ] Comment a Post
+        - [ ] All users posts
+        - [X] My own Posts
+        - [X] Create new Post
+        - [X] Delete a Post
+        - [X] Edit a Post
+    - [X] UserPostLike
+        - [X] Like a post
+        - [X] Unlike a post
+        - [X] Get all liked posts
+        - [X] Get all users that like a specific post
+    - [ ] Comment
+        - [ ] Comment a post
+        - [ ] Edit comment 
+        - [ ] Delete comment
+        - [ ] Get all comments of a specific post
+        - [ ] Get all your comments
 - [ ] Test all routes using pytest (in the test module)
 - [ ] Complete README.md file
