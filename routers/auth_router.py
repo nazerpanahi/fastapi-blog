@@ -15,7 +15,7 @@ from utils.db_utils import get_sql_db, get_redis_db
 router = APIRouter()
 
 
-@router.post(auth_apis.get('register'), name='register')
+@router.api_route(**auth_apis.get('register'))
 def register(request: Request,
              user: UserCreate,
              users_db: Session = Depends(get_sql_db),
@@ -31,7 +31,7 @@ def register(request: Request,
         raise KnownErrors.ERROR_BAD_REQUEST
 
 
-@router.post(auth_apis.get('login'), name='login')
+@router.api_route(**auth_apis.get('login'))
 def login(request: Request,
           user: UserCreate,
           users_db: Session = Depends(get_sql_db),
@@ -47,7 +47,7 @@ def login(request: Request,
     return resp
 
 
-@router.post(auth_apis.get('logout'), name='logout')
+@router.api_route(**auth_apis.get('logout'))
 def logout(request: Request,
            tokens_db: Redis = Depends(get_redis_db)):
     access_token = auth_utils.is_authenticated(request, tokens_db, error=KnownErrors.ERROR_BAD_REQUEST)
@@ -58,7 +58,7 @@ def logout(request: Request,
         return nok_response()
 
 
-@router.post(auth_apis.get('delete_account'), name='delete_account')
+@router.api_route(**auth_apis.get('delete_account'))
 def delete_account(request: Request,
                    users_db: Session = Depends(get_sql_db),
                    tokens_db: Redis = Depends(get_redis_db)):

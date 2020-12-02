@@ -1,22 +1,22 @@
 auth_apis = {
-    'register': '/register',
-    'login': '/login',
-    'logout': '/logout',
-    'delete_account': '/delete-account',
+    'register': {'path': '/register', 'methods': ['POST', ], 'name': 'register'},
+    'login': {'path': '/login', 'methods': ['POST', ], 'name': 'login'},
+    'logout': {'path': '/logout', 'methods': ['POST', ], 'name': 'logout'},
+    'delete_account': {'path': '/delete-account', 'methods': ['POST', ], 'name': 'delete_account'},
 }
 
 post_apis = {
-    'new': '/new',
-    'all': '/all',
-    'me_all': '/me/all',
-    'get': '/get',
-    'delete': '/delete/{post_id}',
-    'edit': '/edit/{post_id}',
+    'new': {'path': '/new', 'methods': ['POST', ], },
+    'all': {'path': '/all', 'methods': ['GET', ], },
+    'me_all': {'path': '/me/all', 'methods': ['GET', ], },
+    'get': {'path': '/get', 'methods': ['GET', ], },
+    'delete': {'path': '/delete/{post_id}', 'methods': ['GET', ], },
+    'edit': {'path': '/edit/{post_id}', 'methods': ['POST', ], },
 }
 
 like_apis = {
-    'like': '/like',
-    'unlike': '/unlike',
-    'liked': '/liked',
-    'likes': '/likes',
+    'like': {'path': '/like', 'methods': ['GET', ], },
+    'unlike': {'path': '/unlike', 'methods': ['GET', ], },
+    'liked': {'path': '/liked', 'methods': ['GET', ], },
+    'likes': {'path': '/likes', 'methods': ['GET', ], },
 }

@@ -13,7 +13,7 @@ from utils.db_utils import get_sql_db, get_redis_db
 router = APIRouter()
 
 
-@router.post(post_apis.get('new'))
+@router.api_route(**post_apis.get('new'))
 def new_post(request: Request,
              post: PostCreate,
              users_db: Session = Depends(get_sql_db),
@@ -31,7 +31,7 @@ def new_post(request: Request,
     return ok_response()
 
 
-@router.get(post_apis.get('me_all'))
+@router.api_route(**post_apis.get('me_all'))
 def get_all_my_posts(request: Request,
                      users_db: Session = Depends(get_sql_db),
                      posts_db: Session = Depends(get_sql_db),
@@ -44,7 +44,7 @@ def get_all_my_posts(request: Request,
     return ok_response(posts.all())
 
 
-@router.get(post_apis.get('all'))
+@router.api_route(**post_apis.get('all'))
 def get_all_posts(request: Request,
                   posts_db: Session = Depends(get_sql_db),
                   tokens_db: Redis = Depends(get_redis_db)):
@@ -57,7 +57,7 @@ def get_all_posts(request: Request,
     return ok_response(posts.all())
 
 
-@router.get(post_apis.get('get'))
+@router.api_route(**post_apis.get('get'))
 def get_post(request: Request,
              post_id: int,
              posts_db: Session = Depends(get_sql_db),
@@ -69,7 +69,7 @@ def get_post(request: Request,
     return ok_response(post)
 
 
-@router.get(post_apis.get('delete'))
+@router.api_route(**post_apis.get('delete'))
 def delete_post(request: Request,
                 post_id: int,
                 users_db: Session = Depends(get_sql_db),
@@ -87,7 +87,7 @@ def delete_post(request: Request,
     return ok_response(data=post)
 
 
-@router.post(post_apis.get('edit'))
+@router.api_route(**post_apis.get('edit'))
 def edit_post(request: Request,
               post_id: int,
               post: dict,

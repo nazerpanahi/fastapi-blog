@@ -12,7 +12,7 @@ from utils.db_utils import get_sql_db, get_redis_db
 router = APIRouter()
 
 
-@router.get(like_apis.get('like'))
+@router.api_route(**like_apis.get('like'))
 def like_post(request: Request,
               post_id: int,
               users_db: Session = Depends(get_sql_db),
@@ -29,7 +29,7 @@ def like_post(request: Request,
     return ok_response()
 
 
-@router.get(like_apis.get('unlike'))
+@router.api_route(**like_apis.get('unlike'))
 def unlike_post(request: Request,
                 post_id: int,
                 users_db: Session = Depends(get_sql_db),
@@ -46,7 +46,7 @@ def unlike_post(request: Request,
     return ok_response()
 
 
-@router.get(like_apis.get('liked'))
+@router.api_route(**like_apis.get('liked'))
 def get_liked_posts(request: Request,
                     users_db: Session = Depends(get_sql_db),
                     user_post_like_db: Session = Depends(get_sql_db),
@@ -59,7 +59,7 @@ def get_liked_posts(request: Request,
     return ok_response(data=liked_posts)
 
 
-@router.get(like_apis.get('likes'))
+@router.api_route(**like_apis.get('likes'))
 def get_post_likes(request: Request,
                    post_id: int,
                    posts_db: Session = Depends(get_sql_db),
