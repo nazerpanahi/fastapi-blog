@@ -27,20 +27,33 @@ def new_post(request: Request,
         post.author_id = user_id
     elif post.author_id != user_id:
         raise KnownErrors.ERROR_BAD_REQUEST
-    post_db = PostCRUD(posts_db=posts_db).add_new_post(post=post)
+    PostCRUD(posts_db=posts_db).add_new_post(post=post)
     return ok_response()
 
 
-@router.get(post_apis.get('all'))
-def get_all_posts(request: Request,
-                  users_db: Session = Depends(get_sql_db),
-                  posts_db: Session = Depends(get_sql_db),
-                  tokens_db: Redis = Depends(get_redis_db)):
+@router.get(post_apis.get('me_all'))
+def get_all_my_posts(request: Request,
+                     users_db: Session = Depends(get_sql_db),
+                     posts_db: Session = Depends(get_sql_db),
+                     tokens_db: Redis = Depends(get_redis_db)):
     access_token = auth_utils.is_authenticated(request=request,
                                                tokens_db=tokens_db,
                                                error=KnownErrors.ERROR_BAD_REQUEST)
     user_id = auth_utils.get_current_user(access_token=access_token, users_db=users_db).user_id
     posts = PostCRUD(posts_db=posts_db).get_by_author(author_id=user_id)
+    return ok_response(posts.all())
+
+
+@router.get(post_apis.get('all'))
+def get_all_posts(request: Request,
+                  posts_db: Session = Depends(get_sql_db),
+                  tokens_db: Redis = Depends(get_redis_db)):
+    # check if the user is authenticated and raise error if the token is not sent
+    auth_utils.is_authenticated(request=request,
+                                tokens_db=tokens_db,
+                                error=KnownErrors.ERROR_BAD_REQUEST)
+    # get all posts
+    posts = PostCRUD(posts_db=posts_db).get_all()
     return ok_response(posts.all())
 
 
@@ -71,7 +84,7 @@ def delete_post(request: Request,
         post = PostCRUD(posts_db=posts_db).delete_by_id(post_id=post_id)
     else:
         raise KnownErrors.ERROR_BAD_REQUEST
-    return ok_response()
+    return ok_response(data=post)
 
 
 @router.post(post_apis.get('edit'))
