@@ -20,3 +20,12 @@ like_apis = {
     'liked': {'path': '/liked', 'methods': ['GET', ], },
     'likes': {'path': '/likes', 'methods': ['GET', ], },
 }
+
+comment_apis = {
+    'new': {'path': '/new', 'methods': ['POST', ], },
+    'all': {'path': '/all/{post_id}', 'methods': ['GET', ], },
+    'me_all': {'path': '/me/all', 'methods': ['GET', ], },
+    'get': {'path': '/get', 'methods': ['GET', ], },
+    'delete': {'path': '/delete/{comment_id}', 'methods': ['GET', ], },
+    'edit': {'path': '/edit/{comment_id}', 'methods': ['POST', ], },
+}
