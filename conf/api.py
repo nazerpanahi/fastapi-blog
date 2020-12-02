@@ -8,6 +8,7 @@ auth_apis = {
 post_apis = {
     'new': '/new',
     'all': '/all',
+    'me_all': '/me/all',
     'get': '/get',
     'delete': '/delete/{post_id}',
     'edit': '/edit/{post_id}',
