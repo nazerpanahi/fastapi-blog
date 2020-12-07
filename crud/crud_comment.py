@@ -19,7 +19,7 @@ class CommentCRUD(ModelCRUD):
         return self.filter(Comment.post_id == post_id)
 
     def add_new_comment(self, comment: CommentCreate):
-        super().add_new(post_id=comment.post_id, content=comment.content, author_id=comment.author_id)
+        return super().add_new(post_id=comment.post_id, content=comment.content, author_id=comment.author_id)
 
     def delete_by_id(self, comment_id: int):
         return self.delete(Comment.comment_id == comment_id)

@@ -16,7 +16,7 @@ class PostCRUD(ModelCRUD):
         return self.filter(Post.author_id == author_id)
 
     def add_new_post(self, post: PostCreate):
-        super().add_new(title=post.title, content=post.content, author_id=post.author_id)
+        return super().add_new(title=post.title, content=post.content, author_id=post.author_id)
 
     def delete_by_id(self, post_id: int):
         return self.delete(Post.post_id == post_id)

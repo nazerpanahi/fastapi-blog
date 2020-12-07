@@ -17,7 +17,7 @@ class UserCRUD(ModelCRUD):
         return self.get_first(User.username == username)
 
     def add_new_user(self, user: UserCreate):
-        super().add_new(username=user.username, first_name=user.first_name, last_name=user.last_name,
+        return super().add_new(username=user.username, first_name=user.first_name, last_name=user.last_name,
                         password=get_password_hash(user.password))
 
     def delete_by_id(self, user_id: int):
