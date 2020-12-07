@@ -75,9 +75,12 @@ def validate_request_token(token: str, tokens_db: Redis) -> bool:
 def is_authenticated(request: Request,
                      tokens_db: Redis,
                      token_header_key: str = TOKEN_HEADER_KEY,
-                     error=None):
+                     error=None,
+                     callback=None,
+                     args=None,
+                     kwargs=None):
     """check if the user is authenticated before or not using the request headers and
-    return None or raise error if the token is not sent (request is not authenticated) and
+    return None or raise error or call callback function if the token is not sent (request is not authenticated) and
     raise not valid credentials error if credentials that sent in the request is not valid and
     return access token if none of the above conditions occur"""
     if is_token_sent(request, token_header_key):
@@ -88,6 +91,12 @@ def is_authenticated(request: Request,
     else:
         if error is not None:
             raise error
+        if callback is not None:
+            if kwargs is None:
+                kwargs = dict()
+            if args is None:
+                args = list()
+            return callback(*args, **kwargs)
         return None
 
 
@@ -104,6 +113,9 @@ def login_for_access_token(username, password, expire_delta, users_db: Session, 
     return access_token
 
 
-def delete_user_account(token: str, users_db: Session):
-    user = get_current_user(token, users_db)
-    return UserCRUD(users_db=users_db).delete_by_username(username=user.username)
+def get_request_user(request: Request, users_db: Session, tokens_db: Redis, error=KnownErrors.ERROR_BAD_REQUEST):
+    """get the current user from the request headers and return the user"""
+    access_token = is_authenticated(request=request,
+                                    tokens_db=tokens_db,
+                                    error=error)
+    return get_current_user(access_token=access_token, users_db=users_db)

@@ -18,13 +18,11 @@ def new_comment(request: Request,
                 users_db: Session = Depends(get_sql_db),
                 comments_db: Session = Depends(get_sql_db),
                 tokens_db: Redis = Depends(get_redis_db)):
-    access_token = auth_utils.is_authenticated(request=request,
-                                               tokens_db=tokens_db,
-                                               error=KnownErrors.ERROR_BAD_REQUEST)
-    user_id = auth_utils.get_current_user(access_token=access_token, users_db=users_db)
+    """Add new comment. Users can comment a post."""
+    user_id = auth_utils.get_request_user(request, users_db, tokens_db).user_id
     if comment.author_id is None:
         comment.author_id = user_id
-    elif comment.author_id != user_id:
+    elif not check_comment_owner(comment.author_id, user_id):
         raise KnownErrors.ERROR_BAD_REQUEST
     CommentCRUD(comments_db=comments_db).add_new_comment(comment=comment)
     return ok_response()
@@ -35,10 +33,8 @@ def get_my_comments(request: Request,
                     users_db: Session = Depends(get_sql_db),
                     comments_db: Session = Depends(get_sql_db),
                     tokens_db: Redis = Depends(get_redis_db)):
-    access_token = auth_utils.is_authenticated(request=request,
-                                               tokens_db=tokens_db,
-                                               error=KnownErrors.ERROR_BAD_REQUEST)
-    user_id = auth_utils.get_current_user(access_token=access_token, users_db=users_db).user_id
+    """Get all posts of current user"""
+    user_id = auth_utils.get_request_user(request, users_db, tokens_db).user_id
     comments = CommentCRUD(comments_db=comments_db).get_by_author(author_id=user_id)
     return ok_response(comments.all())
 
@@ -48,6 +44,7 @@ def get_all_comments_of_specific_post(request: Request,
                                       post_id: int,
                                       comments_db: Session = Depends(get_sql_db),
                                       tokens_db: Redis = Depends(get_redis_db)):
+    """Get all comment of a specific post"""
     auth_utils.is_authenticated(request=request,
                                 tokens_db=tokens_db,
                                 error=KnownErrors.ERROR_BAD_REQUEST)
@@ -60,6 +57,7 @@ def get_comment(request: Request,
                 comment_id: int,
                 comments_db: Session = Depends(get_sql_db),
                 tokens_db: Redis = Depends(get_redis_db)):
+    """Get a specific comment"""
     auth_utils.is_authenticated(request=request,
                                 tokens_db=tokens_db,
                                 error=KnownErrors.ERROR_BAD_REQUEST)
@@ -73,12 +71,8 @@ def delete_comment(request: Request,
                    users_db: Session = Depends(get_sql_db),
                    comments_db: Session = Depends(get_sql_db),
                    tokens_db: Redis = Depends(get_redis_db)):
-    access_token = auth_utils.is_authenticated(request=request,
-                                               tokens_db=tokens_db,
-                                               error=KnownErrors.ERROR_BAD_REQUEST)
-    user_id = auth_utils.get_current_user(access_token=access_token, users_db=users_db).user_id
-    comment_author_id = CommentCRUD(comments_db=comments_db).get_by_id(comment_id).author_id
-    if comment_author_id == user_id:
+    """Delete a specific comment"""
+    if validate_comment_owner(request, comment_id, users_db, tokens_db, comments_db):
         comment = CommentCRUD(comments_db=comments_db).delete_by_id(comment_id=comment_id)
     else:
         raise KnownErrors.ERROR_BAD_REQUEST
@@ -92,13 +86,21 @@ def edit_comment(request: Request,
                  users_db: Session = Depends(get_sql_db),
                  comments_db: Session = Depends(get_sql_db),
                  tokens_db: Redis = Depends(get_redis_db)):
-    access_token = auth_utils.is_authenticated(request=request,
-                                               tokens_db=tokens_db,
-                                               error=KnownErrors.ERROR_BAD_REQUEST)
-    user_id = auth_utils.get_current_user(access_token=access_token, users_db=users_db).user_id
-    post_author_id = CommentCRUD(comments_db=comments_db).get_by_id(comment_id).author_id
-    if post_author_id == user_id:
+    """Edit a specific comment"""
+    if validate_comment_owner(request, comment_id, users_db, tokens_db, comments_db):
         CommentCRUD(comments_db=comments_db).update_by_id(comment_id=comment_id, values=comment)
     else:
         raise KnownErrors.ERROR_BAD_REQUEST
     return ok_response()
+
+
+def validate_comment_owner(request: Request, comment_id: int, users_db: Session, tokens_db: Redis, comments_db: Session):
+    """Check if the current user is the author of the comment or not"""
+    user_id = auth_utils.get_request_user(request, users_db, tokens_db).user_id
+    comment_author_id = CommentCRUD(comments_db=comments_db).get_by_id(comment_id).author_id
+    return check_comment_owner(comment_author_id, user_id)
+
+
+def check_comment_owner(comment_author_id, user_id):
+    """compare user id and comment author id and return true if they are equal"""
+    return user_id == comment_author_id

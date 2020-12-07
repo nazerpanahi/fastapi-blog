@@ -20,13 +20,14 @@ def register(request: Request,
              user: UserCreate,
              users_db: Session = Depends(get_sql_db),
              tokens_db: Redis = Depends(get_redis_db)):
-    access_token = auth_utils.is_authenticated(request, tokens_db)
+    """Register the user in the database if the user has not registered before and has not logged in. Return the user
+    after it created successfully"""
+    access_token = auth_utils.is_authenticated(request, tokens_db,)
     if access_token is None:  # request is not authorized
-        try:
-            user_db = crud_user.UserCRUD(users_db=users_db).add_new_user(user)
-            return ok_response()
-        except IntegrityError:
+        if crud_user.UserCRUD(users_db=users_db).username_exists(user.username):
             raise KnownErrors.ERROR_USER_EXISTS
+        user_db = crud_user.UserCRUD(users_db=users_db).add_new_user(user)
+        return ok_response(user_db)
     else:
         raise KnownErrors.ERROR_BAD_REQUEST
 
@@ -36,13 +37,14 @@ def login(request: Request,
           user: UserCreate,
           users_db: Session = Depends(get_sql_db),
           tokens_db: Redis = Depends(get_redis_db)):
-    access_token = auth_utils.is_authenticated(request, tokens_db)  # Return None if the user is not authenticated
-    if access_token is None:  # request is not authorized
-        access_token = auth_utils.login_for_access_token(user.username,
-                                                         user.password,
-                                                         default_token_expire_minutes,
-                                                         users_db,
-                                                         tokens_db)
+    """Login the user and return the token"""
+    access_token = auth_utils.is_authenticated(request, tokens_db,
+                                               callback=auth_utils.login_for_access_token,
+                                               args=[user.username,
+                                                     user.password,
+                                                     default_token_expire_minutes,
+                                                     users_db,
+                                                     tokens_db],)
     resp = Response(headers={"Authorization": f"Bearer {access_token}"}, content=access_token)
     return resp
 
@@ -50,6 +52,7 @@ def login(request: Request,
 @router.api_route(**auth_apis.get('logout'))
 def logout(request: Request,
            tokens_db: Redis = Depends(get_redis_db)):
+    """Logout the user and delete the token"""
     access_token = auth_utils.is_authenticated(request, tokens_db, error=KnownErrors.ERROR_BAD_REQUEST)
     is_deleted = token_utils.delete_token(token=access_token, tokens_db=tokens_db)
     if is_deleted:
@@ -62,6 +65,8 @@ def logout(request: Request,
 def delete_account(request: Request,
                    users_db: Session = Depends(get_sql_db),
                    tokens_db: Redis = Depends(get_redis_db)):
+    """Delete the user from database"""
     access_token = auth_utils.is_authenticated(request, tokens_db, error=KnownErrors.ERROR_BAD_REQUEST)
-    resp = auth_utils.delete_user_account(access_token, users_db=users_db)
+    user = auth_utils.get_current_user(access_token=access_token, users_db=users_db)
+    resp = crud_user.UserCRUD(users_db=users_db).delete_by_username(username=user.username)
     return ok_response(data=resp)
