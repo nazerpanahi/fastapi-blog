@@ -66,6 +66,7 @@ def delete_user_token(username: str, tokens_db: Redis):
 
 
 def delete_token(token: str, tokens_db: Redis):
+    """delete the token from the database"""
     data = jwt_token_decode(token)
     if 'username' in data:
         username = data.get('username')
