@@ -35,3 +35,8 @@ class ModelCRUD:
         result = self.filter(*conditions).delete()
         self.db.commit()
         return result
+
+    def exists(self, *conditions):
+        q = self.filter(*conditions)
+        result = self.db.query(q.exists()).scalar()
+        return result
