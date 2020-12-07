@@ -18,7 +18,7 @@ class UserCRUD(ModelCRUD):
 
     def add_new_user(self, user: UserCreate):
         return super().add_new(username=user.username, first_name=user.first_name, last_name=user.last_name,
-                        password=get_password_hash(user.password))
+                               password=get_password_hash(user.password))
 
     def delete_by_id(self, user_id: int):
         return self.delete(User.user_id == user_id)
@@ -31,3 +31,6 @@ class UserCRUD(ModelCRUD):
 
     def update_by_username(self, username: str, values: dict):
         return self.update(values, User.username == username)
+
+    def username_exists(self, username: str):
+        return super().exists(User.username == username)
