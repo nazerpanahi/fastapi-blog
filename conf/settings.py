@@ -9,16 +9,26 @@ DB_SETTINGS = {
             'check_same_thread': False
         }
     },
-    'SEARCH_ENGINES': {
-        'db_url': 'elasticsearch+http://localhost:9200/',
-        'autocommit': False,
-        'autoflush': False,
-    },
 }
 
 REDIS_SETTINGS = {
     'host': 'localhost',
     'port': 6379
+}
+
+ELASTICSEARCH_SETTINGS = {
+    'hosts': (
+        {
+            'host': 'localhost',
+            'port': 9200,
+        }
+    ),
+    'indexes': {
+        'auth': 'test_auth',
+        'post': 'test_post',
+        'like': 'test_like',
+        'comment': 'test_comment',
+    }
 }
 
 JWT_SETTINGS = {
