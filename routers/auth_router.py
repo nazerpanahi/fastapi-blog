@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Request, Depends, Response
 from redis import Redis
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from broker.tasks import save_data_in_elastic
 from conf.api import auth_apis
+from conf.settings import ELASTICSEARCH_SETTINGS
 from conf.constants import default_token_expire_minutes
 from core.errors import KnownErrors
 from core.responses import ok_response, nok_response
@@ -27,6 +28,16 @@ def register(request: Request,
         if crud_user.UserCRUD(users_db=users_db).username_exists(user.username):
             raise KnownErrors.ERROR_USER_EXISTS
         user_db = crud_user.UserCRUD(users_db=users_db).add_new_user(user)
+        data = {
+            "id": user_db.user_id,
+            "username": user_db.username,
+            "password": user_db.password,
+            "first_name": user_db.first_name,
+            "last_name": user_db.last_name,
+            "created_at": user_db.created_at,
+        }
+        r = save_data_in_elastic.apply_async((data, ELASTICSEARCH_SETTINGS['indexes']['auth']))
+        r.forget()
         return ok_response(user_db)
     else:
         raise KnownErrors.ERROR_BAD_REQUEST
@@ -45,7 +56,10 @@ def login(request: Request,
                                                      default_token_expire_minutes,
                                                      users_db,
                                                      tokens_db],)
-    resp = Response(headers={"Authorization": f"Bearer {access_token}"}, content=access_token)
+    resp = Response(
+        headers={"Authorization": f"Bearer {access_token}"},
+        content=access_token
+    )
     return resp
 
 
@@ -53,8 +67,15 @@ def login(request: Request,
 def logout(request: Request,
            tokens_db: Redis = Depends(get_redis_db)):
     """Logout the user and delete the token"""
-    access_token = auth_utils.is_authenticated(request, tokens_db, error=KnownErrors.ERROR_BAD_REQUEST)
-    is_deleted = token_utils.delete_token(token=access_token, tokens_db=tokens_db)
+    access_token = auth_utils.is_authenticated(
+        request,
+        tokens_db,
+        error=KnownErrors.ERROR_BAD_REQUEST
+    )
+    is_deleted = token_utils.delete_token(
+        token=access_token,
+        tokens_db=tokens_db
+    )
     if is_deleted:
         return ok_response()
     else:
@@ -66,7 +87,15 @@ def delete_account(request: Request,
                    users_db: Session = Depends(get_sql_db),
                    tokens_db: Redis = Depends(get_redis_db)):
     """Delete the user from database"""
-    access_token = auth_utils.is_authenticated(request, tokens_db, error=KnownErrors.ERROR_BAD_REQUEST)
-    user = auth_utils.get_current_user(access_token=access_token, users_db=users_db)
-    resp = crud_user.UserCRUD(users_db=users_db).delete_by_username(username=user.username)
+    access_token = auth_utils.is_authenticated(
+        request,
+        tokens_db,
+        error=KnownErrors.ERROR_BAD_REQUEST)
+    user = auth_utils.get_current_user(
+        access_token=access_token,
+        users_db=users_db
+    )
+    resp = crud_user.UserCRUD(users_db=users_db).delete_by_username(
+        username=user.username
+    )
     return ok_response(data=resp)

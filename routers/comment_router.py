@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Request, Depends
 from sqlalchemy.orm import Session
 from redis import Redis
+
+from broker.tasks import save_data_in_elastic
 from conf.api import comment_apis
+from conf.settings import ELASTICSEARCH_SETTINGS
 from core.errors import KnownErrors
 from schemas import CommentCreate
 from crud import CommentCRUD
@@ -24,8 +27,20 @@ def new_comment(request: Request,
         comment.author_id = user_id
     elif not check_comment_owner(comment.author_id, user_id):
         raise KnownErrors.ERROR_BAD_REQUEST
-    CommentCRUD(comments_db=comments_db).add_new_comment(comment=comment)
-    return ok_response()
+    comment_db = CommentCRUD(
+        comments_db=comments_db
+    ).add_new_comment(comment=comment)
+    data = {
+        'id': comment_db.comment_id,
+        'content': comment_db.content,
+        'created_at': comment_db.created_at,
+        'author_id': comment_db.author_id,
+        'post_id': comment_db.post_id,
+    }
+    save_data_in_elastic.apply_async(
+        (data, ELASTICSEARCH_SETTINGS['indexes']['comment'])
+    ).forget()
+    return ok_response(comment_db)
 
 
 @router.api_route(**comment_apis.get('me_all'))
@@ -35,7 +50,9 @@ def get_my_comments(request: Request,
                     tokens_db: Redis = Depends(get_redis_db)):
     """Get all posts of current user"""
     user_id = auth_utils.get_request_user(request, users_db, tokens_db).user_id
-    comments = CommentCRUD(comments_db=comments_db).get_by_author(author_id=user_id)
+    comments = CommentCRUD(
+        comments_db=comments_db
+    ).get_by_author(author_id=user_id)
     return ok_response(comments.all())
 
 
@@ -48,7 +65,9 @@ def get_all_comments_of_specific_post(request: Request,
     auth_utils.is_authenticated(request=request,
                                 tokens_db=tokens_db,
                                 error=KnownErrors.ERROR_BAD_REQUEST)
-    comments = CommentCRUD(comments_db=comments_db).get_by_post(post_id=post_id)
+    comments = CommentCRUD(
+        comments_db=comments_db
+    ).get_by_post(post_id=post_id)
     return ok_response(comments.all())
 
 
@@ -61,7 +80,9 @@ def get_comment(request: Request,
     auth_utils.is_authenticated(request=request,
                                 tokens_db=tokens_db,
                                 error=KnownErrors.ERROR_BAD_REQUEST)
-    comment = CommentCRUD(comments_db=comments_db).get_by_id(comment_id=comment_id)
+    comment = CommentCRUD(
+        comments_db=comments_db
+    ).get_by_id(comment_id=comment_id)
     return ok_response(comment)
 
 
@@ -73,7 +94,9 @@ def delete_comment(request: Request,
                    tokens_db: Redis = Depends(get_redis_db)):
     """Delete a specific comment"""
     if validate_comment_owner(request, comment_id, users_db, tokens_db, comments_db):
-        comment = CommentCRUD(comments_db=comments_db).delete_by_id(comment_id=comment_id)
+        comment = CommentCRUD(
+            comments_db=comments_db
+        ).delete_by_id(comment_id=comment_id)
     else:
         raise KnownErrors.ERROR_BAD_REQUEST
     return ok_response(data=comment)
@@ -88,7 +111,9 @@ def edit_comment(request: Request,
                  tokens_db: Redis = Depends(get_redis_db)):
     """Edit a specific comment"""
     if validate_comment_owner(request, comment_id, users_db, tokens_db, comments_db):
-        CommentCRUD(comments_db=comments_db).update_by_id(comment_id=comment_id, values=comment)
+        CommentCRUD(
+            comments_db=comments_db
+        ).update_by_id(comment_id=comment_id, values=comment)
     else:
         raise KnownErrors.ERROR_BAD_REQUEST
     return ok_response()
@@ -97,7 +122,9 @@ def edit_comment(request: Request,
 def validate_comment_owner(request: Request, comment_id: int, users_db: Session, tokens_db: Redis, comments_db: Session):
     """Check if the current user is the author of the comment or not"""
     user_id = auth_utils.get_request_user(request, users_db, tokens_db).user_id
-    comment_author_id = CommentCRUD(comments_db=comments_db).get_by_id(comment_id).author_id
+    comment_author_id = CommentCRUD(
+        comments_db=comments_db
+    ).get_by_id(comment_id).author_id
     return check_comment_owner(comment_author_id, user_id)
 
 

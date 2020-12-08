@@ -2,7 +2,9 @@ from fastapi import APIRouter, Request, Depends
 from redis import Redis
 from sqlalchemy.orm import Session
 
+from broker.tasks import save_data_in_elastic
 from conf.api import post_apis
+from conf.settings import ELASTICSEARCH_SETTINGS
 from core.errors import KnownErrors
 from core.responses import ok_response
 from crud import PostCRUD
@@ -25,8 +27,18 @@ def new_post(request: Request,
         post.author_id = user_id
     elif not check_post_owner(post.author_id, user_id):
         raise KnownErrors.ERROR_BAD_REQUEST
-    PostCRUD(posts_db=posts_db).add_new_post(post=post)
-    return ok_response()
+    post_db = PostCRUD(posts_db=posts_db).add_new_post(post=post)
+    data = {
+        'id': post_db.post_id,
+        'title': post_db.title,
+        'content': post_db.content,
+        'created_at': post_db.created_at,
+        'author_id': post_db.author_id,
+    }
+    save_data_in_elastic.apply_async(
+        (data, ELASTICSEARCH_SETTINGS['indexes']['comment'])
+    ).forget()
+    return ok_response(post_db)
 
 
 @router.api_route(**post_apis.get('me_all'))
