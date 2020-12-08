@@ -79,18 +79,12 @@ class RedisSettings:
 
 
 _sql = DBSettings('SQL')
-_search_engine = DBSettings('SEARCH_ENGINES')
 _redis = RedisSettings()
 
 SQL_engine, SQL_SessionLocal, SQL_Base = SQLAlchemyDB(url=_sql.url,
                                                       autocommit=_sql.auto_commit,
                                                       autoflush=_sql.auto_flush,
                                                       connect_args=_sql.connect_args).get_connection()
-
-SE_engine, SE_SessionLocal, SE_Base = SQLAlchemyDB(url=_search_engine.url,
-                                                   autocommit=_search_engine.auto_commit,
-                                                   autoflush=_search_engine.auto_flush,
-                                                   connect_args=_search_engine.connect_args).get_connection()
 
 REDIS_CONNECTION = RedisDB(host=_redis.host, port=_redis.port, db=_redis.db, password=_redis.password,
                            connection_pool=_redis.connection_pool).connection
