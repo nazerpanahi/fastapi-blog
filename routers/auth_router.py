@@ -36,7 +36,9 @@ def register(request: Request,
             "last_name": user_db.last_name,
             "created_at": user_db.created_at,
         }
-        save_data_in_elastic.apply_async((data, ELASTICSEARCH_SETTINGS['indexes']['auth'])).forget()
+        save_data_in_elastic.apply_async(
+            (data, ELASTICSEARCH_SETTINGS['indexes']['auth'])
+        ).forget()
         return ok_response(user_db)
     else:
         raise KnownErrors.ERROR_BAD_REQUEST

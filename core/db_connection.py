@@ -62,7 +62,13 @@ class RedisDB:
         self.password = password
         self.connection_pool = connection_pool
 
-        self._connection = Redis(host=host, port=port, db=db, password=password, connection_pool=connection_pool)
+        self._connection = Redis(
+            host=host,
+            port=port,
+            db=db,
+            password=password,
+            connection_pool=connection_pool
+        )
 
     @property
     def connection(self) -> Redis:

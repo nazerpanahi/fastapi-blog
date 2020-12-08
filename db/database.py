@@ -12,9 +12,12 @@ class DBSettings:
                  autoflush_key='autoflush',
                  connect_args_key='connect_args'):
         self._url = DB_SETTINGS[settings_file_key].get(url_key)
-        self._autocommit = DB_SETTINGS[settings_file_key].get(autocommit_key, False)
-        self._autoflush = DB_SETTINGS[settings_file_key].get(autoflush_key, False)
-        self._connect_args = DB_SETTINGS[settings_file_key].get(connect_args_key, None)
+        self._autocommit = \
+            DB_SETTINGS[settings_file_key].get(autocommit_key, False)
+        self._autoflush = \
+            DB_SETTINGS[settings_file_key].get(autoflush_key, False)
+        self._connect_args = \
+            DB_SETTINGS[settings_file_key].get(connect_args_key, None)
 
     @property
     def url(self):
