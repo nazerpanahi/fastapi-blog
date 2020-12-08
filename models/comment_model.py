@@ -3,10 +3,10 @@ from datetime import datetime
 from sqlalchemy import Column, ForeignKey, Integer, Date, Text
 
 from conf.constants import db_user_table_name, db_post_table_name, db_comment_table_name
-from db.database import SQL_Base, SE_Base
+from db.database import SQL_Base
 
 
-class Comment(SQL_Base, SE_Base):
+class Comment(SQL_Base):
     __tablename__ = db_comment_table_name
 
     comment_id = Column(Integer, primary_key=True, index=True)
