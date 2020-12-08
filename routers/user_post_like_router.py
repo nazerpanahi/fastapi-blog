@@ -34,7 +34,7 @@ def like_post(request: Request,
     }
     save_data_in_elastic.apply_async(
         (data, ELASTICSEARCH_SETTINGS['indexes']['like'])
-    )
+    ).forget()
     return ok_response(post_like_db)
 
 
