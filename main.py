@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from conf.routers import ROUTERS
-from db.database import SQL_Base, SQL_engine, SE_Base, SE_engine
+from db.database import SQL_Base, SQL_engine
 
 # Make new app
 app = FastAPI()
@@ -11,7 +11,6 @@ app = FastAPI()
 @app.on_event('startup')
 def startup():
     SQL_Base.metadata.create_all(bind=SQL_engine)
-    SE_Base.metadata.create_all(bind=SE_engine)
 
 
 # include all routers that is specified in the settings
