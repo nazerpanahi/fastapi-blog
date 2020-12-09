@@ -17,12 +17,6 @@ REDIS_SETTINGS = {
 }
 
 ELASTICSEARCH_SETTINGS = {
-    'hosts': (
-        {
-            'host': 'localhost',
-            'port': 9200,
-        }
-    ),
     'indexes': {
         'auth': 'test_auth',
         'post': 'test_post',

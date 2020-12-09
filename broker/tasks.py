@@ -5,7 +5,7 @@ from elasticsearch import Elasticsearch
 from broker.celery import app
 from conf.settings import ELASTICSEARCH_SETTINGS
 
-db = Elasticsearch(hosts=ELASTICSEARCH_SETTINGS['hosts'])
+db = Elasticsearch()
 
 
 @app.task()
