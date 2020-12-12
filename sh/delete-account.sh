@@ -9,3 +9,4 @@ echo -e "\n***************Response***************\n"
 
 TOKEN=$(cat tok.en)
 logout $DELETE_ACCOUNT_URL $TOKEN
+rm -f $TOKEN
