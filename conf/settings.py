@@ -30,3 +30,45 @@ JWT_SETTINGS = {
     'ALGORITHM': 'HS256',
     'ACCESS_TOKEN_EXPIRE_MINUTES': 30,
 }
+
+model_table_prefix = ''
+model_tables = {
+    'user': {
+        'name': f'{model_table_prefix}users',
+        'columns': {
+            'user_id': 'user_id',
+            'username': 'username',
+            'first_name': 'first_name',
+            'last_name': 'last_name',
+            'created_at': 'created_at',
+            'password': 'password',
+        },
+    },
+    'post': {
+        'name': f'{model_table_prefix}posts',
+        'columns': {
+            'post_id': 'post_id',
+            'title': 'title',
+            'content': 'content',
+            'created_at': 'created_at',
+            'author_id': 'author_id',
+        },
+    },
+    'comment': {
+        'name': f'{model_table_prefix}comments',
+        'columns': {
+            'comment_id': 'comment_id',
+            'content': 'content',
+            'created_at': 'created_at',
+            'author_id': 'author_id',
+            'post_id': 'post_id',
+        },
+    },
+    'user_post_like': {
+        'name': f'{model_table_prefix}user_post_like',
+        'columns': {
+            'post_id': 'post_id',
+            'user_id': 'user_id',
+        },
+    },
+}

@@ -3,13 +3,6 @@ from fastapi import status
 default_token_expire_minutes = 15
 token_header_key = 'Authorization'
 
-db_table_prefix = ""
-db_admin_table_name = f"{db_table_prefix}admins"
-db_user_table_name = f"{db_table_prefix}users"
-db_post_table_name = f"{db_table_prefix}posts"
-db_user_post_like_table_name = f"{db_table_prefix}user_post_like"
-db_comment_table_name = f"{db_table_prefix}comments"
-
 error_user_exists = 'error_user_exists'
 error_user_not_exists = 'error_user_not_exists'
 error_not_authenticated = 'error_not_authenticated'
