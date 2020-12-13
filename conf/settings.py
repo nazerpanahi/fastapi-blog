@@ -1,3 +1,8 @@
+from starlette import status
+
+from conf.constants import error_user_exists, error_user_not_exists, error_not_authenticated, error_incorrect_username, \
+    error_incorrect_password, error_not_valid_credentials, error_user_not_found, error_bad_request
+
 FAST_API_PORT = 8000
 
 DB_SETTINGS = {
@@ -70,5 +75,39 @@ model_tables = {
             'post_id': 'post_id',
             'user_id': 'user_id',
         },
+    },
+}
+errors_settings = {
+    error_user_exists: {
+        'status_code': status.HTTP_400_BAD_REQUEST,
+        'detail': 'User exists',
+    },
+    error_user_not_exists: {
+        'status_code': status.HTTP_400_BAD_REQUEST,
+        'detail': 'User not exists',
+    },
+    error_not_authenticated: {
+        'status_code': status.HTTP_400_BAD_REQUEST,
+        'detail': 'Not Authenticated',
+    },
+    error_incorrect_username: {
+        'status_code': status.HTTP_400_BAD_REQUEST,
+        'detail': 'Incorrect username or password',
+    },
+    error_incorrect_password: {
+        'status_code': status.HTTP_400_BAD_REQUEST,
+        'detail': 'Incorrect username or password',
+    },
+    error_not_valid_credentials: {
+        'status_code': status.HTTP_400_BAD_REQUEST,
+        'detail': 'Could not validate credentials',
+    },
+    error_user_not_found: {
+        'status_code': status.HTTP_422_UNPROCESSABLE_ENTITY,
+        'detail': 'User not found',
+    },
+    error_bad_request: {
+        'status_code': status.HTTP_400_BAD_REQUEST,
+        'detail': 'Bad Request',
     },
 }
