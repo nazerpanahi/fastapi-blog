@@ -1,3 +1,5 @@
+from elasticsearch import Elasticsearch
+
 from conf.settings import DB_SETTINGS, REDIS_SETTINGS
 from core.db_connection import SQLAlchemyDB, RedisDB
 
@@ -91,3 +93,5 @@ SQL_engine, SQL_SessionLocal, SQL_Base = SQLAlchemyDB(url=_sql.url,
 
 REDIS_CONNECTION = RedisDB(host=_redis.host, port=_redis.port, db=_redis.db, password=_redis.password,
                            connection_pool=_redis.connection_pool).connection
+
+ELASTICSEARCH_CONNECTION = Elasticsearch()

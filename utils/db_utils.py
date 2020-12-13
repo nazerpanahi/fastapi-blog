@@ -1,4 +1,4 @@
-from db.database import SQL_SessionLocal, REDIS_CONNECTION
+from db.database import SQL_SessionLocal, REDIS_CONNECTION, ELASTICSEARCH_CONNECTION
 
 
 def get_sql_db():
@@ -14,3 +14,7 @@ def get_redis_db():
         yield REDIS_CONNECTION
     finally:
         REDIS_CONNECTION.close()
+
+
+def get_elasticsearch_db():
+    return ELASTICSEARCH_CONNECTION
