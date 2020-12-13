@@ -1,5 +1,4 @@
 default_token_expire_minutes = 15
-token_header_key = 'Authorization'
 
 error_user_exists = 'error_user_exists'
 error_user_not_exists = 'error_user_not_exists'

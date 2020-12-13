@@ -77,6 +77,7 @@ model_tables = {
         },
     },
 }
+
 errors_settings = {
     error_user_exists: {
         'status_code': status.HTTP_400_BAD_REQUEST,

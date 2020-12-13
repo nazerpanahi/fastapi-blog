@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
 from typing import Optional
 
-from jose import jwt
+from jose import jwt, JWTError
 from redis import Redis
 
 from conf.constants import default_token_expire_minutes
@@ -36,9 +36,14 @@ def get_default_expire_date():
     return datetime.utcnow() + timedelta(minutes=default_token_expire_minutes)
 
 
-def jwt_token_decode(token: str):
+def jwt_token_decode(token: str, error=None):
     """Decode jwt token"""
-    return jwt.decode(token, _SEC_KEY, algorithms=[_ALGO])
+    try:
+        return jwt.decode(token, _SEC_KEY, algorithms=[_ALGO])
+    except JWTError:
+        if error is not None:
+            raise error
+        raise
 
 
 def register_token_for_user(access_token: str, user: User, tokens_db: Redis):
