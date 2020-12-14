@@ -10,4 +10,4 @@ read -sp "Password: " INPUT_PASSWORD
 
 echo -e "\n***************Response***************\n"
 
-register $REG_URL $INPUT_USERNAME $INPUT_PASSWORD
+register "$REG_URL" "$INPUT_USERNAME" "$INPUT_PASSWORD"
