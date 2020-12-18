@@ -1,3 +1,4 @@
+from models.user_post_like_model import UserPostLike
 from fastapi import APIRouter, Request, Depends
 from redis import Redis
 from sqlalchemy.orm import Session
@@ -24,6 +25,10 @@ def like_post(request: Request,
     """Like a specific post"""
     user_id = auth_utils.get_request_user(request, users_db, tokens_db).user_id
     if PostCRUD(posts_db=posts_db).get_by_id(post_id=post_id) is None:
+        raise KnownErrors.ERROR_BAD_REQUEST
+    if UserPostLikeCRUD(
+        user_post_like_db=user_post_like_db
+    ).user_post_like_exists(user_id=user_id, post_id=post_id):
         raise KnownErrors.ERROR_BAD_REQUEST
     post_like_db = UserPostLikeCRUD(
         user_post_like_db=user_post_like_db

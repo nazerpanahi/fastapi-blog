@@ -10,4 +10,4 @@ read -sp "Password: " INPUT_PASSWORD
 
 echo -e "\n***************Response***************\n"
 
-login $LOGIN_URL $INPUT_USERNAME $INPUT_PASSWORD
+login "$LOGIN_URL" "$INPUT_USERNAME" "$INPUT_PASSWORD"

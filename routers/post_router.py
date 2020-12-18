@@ -36,7 +36,7 @@ def new_post(request: Request,
         'author_id': post_db.author_id,
     }
     save_data_in_elastic.apply_async(
-        (data, ELASTICSEARCH_SETTINGS['indexes']['comment'])
+        (data, ELASTICSEARCH_SETTINGS['indexes']['post'])
     ).forget()
     return ok_response(post_db)
 

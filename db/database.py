@@ -1,3 +1,5 @@
+from elasticsearch import Elasticsearch
+
 from conf.settings import DB_SETTINGS, REDIS_SETTINGS
 from core.db_connection import SQLAlchemyDB, RedisDB
 
@@ -12,9 +14,12 @@ class DBSettings:
                  autoflush_key='autoflush',
                  connect_args_key='connect_args'):
         self._url = DB_SETTINGS[settings_file_key].get(url_key)
-        self._autocommit = DB_SETTINGS[settings_file_key].get(autocommit_key, False)
-        self._autoflush = DB_SETTINGS[settings_file_key].get(autoflush_key, False)
-        self._connect_args = DB_SETTINGS[settings_file_key].get(connect_args_key, None)
+        self._autocommit = \
+            DB_SETTINGS[settings_file_key].get(autocommit_key, False)
+        self._autoflush = \
+            DB_SETTINGS[settings_file_key].get(autoflush_key, False)
+        self._connect_args = \
+            DB_SETTINGS[settings_file_key].get(connect_args_key, None)
 
     @property
     def url(self):
@@ -88,3 +93,5 @@ SQL_engine, SQL_SessionLocal, SQL_Base = SQLAlchemyDB(url=_sql.url,
 
 REDIS_CONNECTION = RedisDB(host=_redis.host, port=_redis.port, db=_redis.db, password=_redis.password,
                            connection_pool=_redis.connection_pool).connection
+
+ELASTICSEARCH_CONNECTION = Elasticsearch()

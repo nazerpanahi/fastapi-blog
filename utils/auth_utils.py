@@ -1,15 +1,12 @@
 from datetime import timedelta
 
 from fastapi import Request
-from jose import jwt, JWTError
 from redis import Redis
 from sqlalchemy.orm import Session
 
-from conf.constants import token_header_key as TOKEN_HEADER_KEY
 from core.errors import KnownErrors
 from crud import UserCRUD
 from schemas import UserCreate
-from utils.token_utils import _SEC_KEY, _ALGO
 from .password_utils import verify_password
 from .token_utils import register_token_for_user, get_token_string, jwt_token_decode, validate_token
 
@@ -34,12 +31,9 @@ def authenticate_user(username: str, password: str, users_db: Session):
 def get_current_user(access_token: str, users_db: Session):
     """Return current authenticated user"""
     credentials_exception = KnownErrors.ERROR_NOT_VALID_CREDENTIALS
-    try:
-        payload = jwt.decode(access_token, _SEC_KEY, algorithms=[_ALGO])
-        username: str = payload.get("username")
-        if username is None:
-            raise credentials_exception
-    except JWTError:
+    payload = jwt_token_decode(access_token, error=credentials_exception)
+    username: str = payload.get("username")
+    if username is None:
         raise credentials_exception
     user = UserCRUD(users_db=users_db).get_by_username(username=username)
     if user is None:
@@ -47,17 +41,17 @@ def get_current_user(access_token: str, users_db: Session):
     return user
 
 
-def is_token_sent(request: Request, token_header_key: str = TOKEN_HEADER_KEY):
+def is_token_sent(request: Request, token_header_key: str = 'Authorization'):
     """check if the request contains the token"""
     if token_header_key in request.headers:
         return True
     return False
 
 
-def get_token_from_request(request: Request, token_header_key: str = TOKEN_HEADER_KEY):
+def get_token_from_request(request: Request, token_header_key: str = 'Authorization'):
     """extract token from request headers"""
     if is_token_sent(request):
-        return request.headers[token_header_key].split(' ')[1]
+        return request.headers[token_header_key].split(' ')[-1]
     else:
         return None
 
@@ -74,7 +68,7 @@ def validate_request_token(token: str, tokens_db: Redis) -> bool:
 
 def is_authenticated(request: Request,
                      tokens_db: Redis,
-                     token_header_key: str = TOKEN_HEADER_KEY,
+                     token_header_key: str = 'Authorization',
                      error=None,
                      callback=None,
                      args=None,
