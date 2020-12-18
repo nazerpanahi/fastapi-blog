@@ -18,7 +18,6 @@ click-plugins==1.1.1
 click-repl==0.1.6
 colorama==0.4.4
 cryptography==3.2.1
-dataclasses==0.8
 ecdsa==0.14.1
 elasticsearch==7.10.0
 elasticsearch-dbapi==0.1.3
